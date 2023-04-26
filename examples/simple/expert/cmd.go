@@ -29,7 +29,7 @@ func main() {
 	ctx := context.Background()
 
 	// prompt 1
-	prompt := "Hello! (*persona) are you doing?"
+	prompt := "Hello! How are you doing?"
 	choices, err := (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
