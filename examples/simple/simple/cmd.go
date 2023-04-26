@@ -29,23 +29,8 @@ func main() {
 	ctx := context.Background()
 
 	// prompt 1
-	prompt := "Hello! How are you doing?"
+	prompt := "Tell me about Long Beach, CA."
 	choices, err := (*persona).Query(ctx, prompt)
-	if err != nil {
-		fmt.Printf("persona.Query error: %v\n", err)
-		os.Exit(1)
-	}
-	fmt.Printf("Me:\n%s\n", prompt)
-	fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
-
-	// divider
-	fmt.Printf("\n\n\n")
-	fmt.Printf("-------------------------------------------")
-	fmt.Printf("\n\n\n")
-
-	// prompt 2
-	prompt = "Tell me about Long Beach, CA."
-	choices, err = (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
