@@ -30,7 +30,7 @@ func main() {
 	ctx := context.Background()
 
 	// create the chatgpt client
-	personaConfig, err := personas.DefaultConfig("https://127.0.0.1/v1", "")
+	personaConfig, err := personas.DefaultConfig("", "")
 	if err != nil {
 		fmt.Printf("personas.DefaultConfig error: %v\n", err)
 		os.Exit(1)
@@ -41,6 +41,12 @@ func main() {
 		fmt.Printf("personas.NewSimpleChatWithOptions error: %v\n", err)
 		os.Exit(1)
 	}
+
+	// persona, err := personas.NewSimpleChat()
+	// if err != nil {
+	// 	fmt.Printf("personas.NewSimple error: %v\n", err)
+	// 	os.Exit(1)
+	// }
 
 	(*persona).Init(interfaces.SkillTypeGeneric, "")
 
