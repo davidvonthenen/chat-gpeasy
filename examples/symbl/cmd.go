@@ -30,6 +30,7 @@ func main() {
 	ctx := context.Background()
 
 	// create the chatgpt client
+	fmt.Printf("Connecting to Generative AI...")
 	personaConfig, err := personas.DefaultConfig("", "")
 	if err != nil {
 		fmt.Printf("personas.DefaultConfig error: %v\n", err)
@@ -41,6 +42,7 @@ func main() {
 		fmt.Printf("personas.NewSimpleChatWithOptions error: %v\n", err)
 		os.Exit(1)
 	}
+	fmt.Printf("Connection Succeeded")
 
 	// persona, err := personas.NewSimpleChat()
 	// if err != nil {
@@ -88,7 +90,7 @@ func main() {
 	}
 
 	// delay...
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 1)
 
 	// mic stuf
 	mic, err := microphone.New(microphone.AudioConfig{
