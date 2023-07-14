@@ -30,9 +30,15 @@ func main() {
 	ctx := context.Background()
 
 	// create the chatgpt client
-	persona, err := personas.NewSimpleChat()
+	personaConfig, err := personas.DefaultConfig("https://127.0.0.1/v1", "")
 	if err != nil {
-		fmt.Printf("personas.NewSimpleChat error: %v\n", err)
+		fmt.Printf("personas.DefaultConfig error: %v\n", err)
+		os.Exit(1)
+	}
+
+	persona, err := personas.NewSimpleChatWithOptions(personaConfig)
+	if err != nil {
+		fmt.Printf("personas.NewSimpleChatWithOptions error: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -47,14 +53,14 @@ func main() {
 	})
 
 	// create a new client
-	cfg := symbl.GetDefaultConfig()
-	cfg.Speaker.Name = "John Doe"
-	cfg.Speaker.UserID = "john.doe@mymail.com"
-	cfg.Config.DetectEntities = true
-	cfg.Config.Sentiment = true
+	symblConfig := symbl.GetDefaultConfig()
+	symblConfig.Speaker.Name = "John Doe"
+	symblConfig.Speaker.UserID = "john.doe@mymail.com"
+	symblConfig.Config.DetectEntities = true
+	symblConfig.Config.Sentiment = true
 
 	options := symbl.StreamingOptions{
-		SymblConfig: cfg,
+		SymblConfig: symblConfig,
 		Callback:    msgHandler,
 	}
 
