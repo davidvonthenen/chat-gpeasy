@@ -59,11 +59,17 @@ func main() {
 	fmt.Printf("\n\n\n")
 
 	// prompt 3
+	fmt.Printf("Additional Prompt: I want more factual type data")
 	err = (*persona).AddDirective("I want more factual type data")
 	if err != nil {
 		fmt.Printf("persona.AddDirective error: %v\n", err)
 		os.Exit(1)
 	}
+
+	// divider
+	fmt.Printf("\n\n\n")
+	fmt.Printf("-------------------------------------------")
+	fmt.Printf("\n\n\n")
 
 	prompt = "Now... tell me about Long Beach, CA."
 	choices, err = (*persona).Query(ctx, prompt)
