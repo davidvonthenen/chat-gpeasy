@@ -79,7 +79,7 @@ func (h *Handler) TopicResponseMessage(tr *sdkinterfaces.TopicResponse) error {
 		}
 		fmt.Printf("\n\n-------------------------------\n")
 		fmt.Printf("TOPIC:\n%s\n", prompt)
-		fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+		fmt.Printf("\n\nGenerative AI:\n%s\n", choices[0].Message.Content)
 		fmt.Printf("-------------------------------\n\n")
 
 	}
@@ -100,7 +100,7 @@ func (h *Handler) TrackerResponseMessage(tr *sdkinterfaces.TrackerResponse) erro
 			}
 			fmt.Printf("\n\n-------------------------------\n")
 			fmt.Printf("TRACKER:\n%s\n", prompt)
-			fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+			fmt.Printf("\n\nGenerative AI:\n%s\n", choices[0].Message.Content)
 			fmt.Printf("-------------------------------\n\n")
 		}
 	}
@@ -121,7 +121,7 @@ func (h *Handler) EntityResponseMessage(er *sdkinterfaces.EntityResponse) error 
 			}
 			fmt.Printf("\n\n-------------------------------\n")
 			fmt.Printf("ENTITY:\n%s\n", prompt)
-			fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+			fmt.Printf("\n\nGenerative AI:\n%s\n", choices[0].Message.Content)
 			fmt.Printf("-------------------------------\n\n")
 		}
 	}
@@ -158,7 +158,7 @@ func (h *Handler) HandleQuestion(insight *sdkinterfaces.Insight, number int) err
 	}
 	fmt.Printf("\n\n-------------------------------\n")
 	fmt.Printf("QUESTION:\n%s\n", prompt)
-	fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+	fmt.Printf("\n\nGenerative AI:\n%s\n", choices[0].Message.Content)
 	fmt.Printf("-------------------------------\n\n")
 
 	return nil
