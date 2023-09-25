@@ -17,19 +17,30 @@ import (
 	simple "github.com/dvonthenen/chat-gpeasy/pkg/personas/simple"
 )
 
-func DefaultConfig() (*PersonaOptions, error) {
+const (
+	openaiAPIURLv1 string = "https://api.openai.com/v1"
+)
+
+func DefaultConfig(OpenAiUrl, OpenAiApiKey string) (*PersonaOptions, error) {
 	var openAiApiKey string
-	if v := os.Getenv("OPENAI_API_KEY"); v != "" {
-		openAiApiKey = v
+	if len(OpenAiApiKey) > 0 {
+		openAiApiKey = OpenAiApiKey
 	} else {
-		klog.V(1).Infof("OPENAI_API_KEY not found\n")
-		return nil, ErrNotFoundOpenAiKey
+		if v := os.Getenv("OPENAI_API_KEY"); v != "" {
+			openAiApiKey = v
+		} else {
+			klog.V(1).Infof("OPENAI_API_KEY not found\n")
+			return nil, ErrNotFoundOpenAiKey
+		}
 	}
 
 	config := openai.DefaultConfig(openAiApiKey)
-	config.BaseURL = "https://127.0.0.1/v1"
 	config.HTTPClient.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	if len(OpenAiUrl) > 0 {
+		config.BaseURL = OpenAiUrl
 	}
 
 	opt := &PersonaOptions{
@@ -41,7 +52,7 @@ func DefaultConfig() (*PersonaOptions, error) {
 }
 
 func newClient() (*openai.Client, error) {
-	options, err := DefaultConfig()
+	options, err := DefaultConfig("https://127.0.0.1/v1", "")
 	if err != nil {
 		return nil, err
 	}
@@ -51,23 +62,13 @@ func newClient() (*openai.Client, error) {
 	return client, nil
 }
 
-func newWithOptions(options PersonaOptions, openAiApiKey string) (*openai.Client, error) {
+func newWithOptions(options *PersonaOptions) (*openai.Client, error) {
 	// if options.BindPort == 0 {
 	// 	options.BindPort = DefaultPort
 	// }
 	if options.DisableHostVerify {
 		options.ClientConfig.HTTPClient.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-
-	if len(openAiApiKey) == 0 {
-		if v := os.Getenv("OPENAI_API_KEY"); v != "" {
-			klog.V(4).Info("OPENAI_API_KEY found")
-			openAiApiKey = v
-		} else {
-			klog.V(1).Infof("OPENAI_API_KEY not found\n")
-			return nil, ErrNotFoundOpenAiKey
 		}
 	}
 
@@ -97,8 +98,8 @@ func NewSimpleChat() (*interfaces.SimpleChat, error) {
 	return &simple, nil
 }
 
-func NewSimpleChatWithOptions(opt PersonaOptions, openAiApiKey string) (*interfaces.SimpleChat, error) {
-	client, err := newWithOptions(opt, openAiApiKey)
+func NewSimpleChatWithOptions(opt *PersonaOptions) (*interfaces.SimpleChat, error) {
+	client, err := newWithOptions(opt)
 	if err != nil {
 		return nil, err
 	}
@@ -131,8 +132,8 @@ func NewCumulativeChat() (*interfaces.CumulativeChat, error) {
 	return &cumulative, nil
 }
 
-func NewCumulativeChatWithOptions(opt PersonaOptions, openAiApiKey string) (*interfaces.CumulativeChat, error) {
-	client, err := newWithOptions(opt, openAiApiKey)
+func NewCumulativeChatWithOptions(opt *PersonaOptions) (*interfaces.CumulativeChat, error) {
+	client, err := newWithOptions(opt)
 	if err != nil {
 		return nil, err
 	}
@@ -165,8 +166,8 @@ func NewAdvancedChat() (*interfaces.AdvancedChat, error) {
 	return &advanced, nil
 }
 
-func NewAdvancedChatWithOptions(opt PersonaOptions, openAiApiKey string) (*interfaces.AdvancedChat, error) {
-	client, err := newWithOptions(opt, openAiApiKey)
+func NewAdvancedChatWithOptions(opt *PersonaOptions) (*interfaces.AdvancedChat, error) {
+	client, err := newWithOptions(opt)
 	if err != nil {
 		return nil, err
 	}

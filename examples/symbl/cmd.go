@@ -30,11 +30,25 @@ func main() {
 	ctx := context.Background()
 
 	// create the chatgpt client
-	persona, err := personas.NewSimpleChat()
+	fmt.Printf("Connecting to Generative AI...\n")
+	personaConfig, err := personas.DefaultConfig("", "")
 	if err != nil {
-		fmt.Printf("personas.NewSimpleChat error: %v\n", err)
+		fmt.Printf("personas.DefaultConfig error: %v\n", err)
 		os.Exit(1)
 	}
+
+	persona, err := personas.NewSimpleChatWithOptions(personaConfig)
+	if err != nil {
+		fmt.Printf("personas.NewSimpleChatWithOptions error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Connection Succeeded\n")
+
+	// persona, err := personas.NewSimpleChat()
+	// if err != nil {
+	// 	fmt.Printf("personas.NewSimple error: %v\n", err)
+	// 	os.Exit(1)
+	// }
 
 	(*persona).Init(interfaces.SkillTypeGeneric, "")
 
@@ -47,14 +61,14 @@ func main() {
 	})
 
 	// create a new client
-	cfg := symbl.GetDefaultConfig()
-	cfg.Speaker.Name = "John Doe"
-	cfg.Speaker.UserID = "john.doe@mymail.com"
-	cfg.Config.DetectEntities = true
-	cfg.Config.Sentiment = true
+	symblConfig := symbl.GetDefaultConfig()
+	symblConfig.Speaker.Name = "John Doe"
+	symblConfig.Speaker.UserID = "john.doe@mymail.com"
+	symblConfig.Config.DetectEntities = true
+	symblConfig.Config.Sentiment = true
 
 	options := symbl.StreamingOptions{
-		SymblConfig: cfg,
+		SymblConfig: symblConfig,
 		Callback:    msgHandler,
 	}
 
@@ -76,7 +90,7 @@ func main() {
 	}
 
 	// delay...
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 1)
 
 	// mic stuf
 	mic, err := microphone.New(microphone.AudioConfig{

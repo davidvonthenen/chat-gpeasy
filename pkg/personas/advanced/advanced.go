@@ -34,14 +34,14 @@ func (c *Persona) Init(level interfaces.SkillType, model string) error {
 		c.conversation = make([]openai.ChatCompletionMessage, 0)
 		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "You are a helpful assistant.",
+			Content: "You are a helpful assistant. If you dont know the answer or some of what you might give is not factual, please say I dont know or omit that part of your reply.",
 		})
 		c.appendedResponse = true
 	case interfaces.SkillTypeExpert:
 		c.conversation = make([]openai.ChatCompletionMessage, 0)
 		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "You are an expert in your field.",
+			Content: "You are an expert in your field. If you dont know the answer or some of what you might give is not factual, please say I dont know or omit that part of your reply.",
 		})
 		c.appendedResponse = true
 	case interfaces.SkillTypeDAN:
