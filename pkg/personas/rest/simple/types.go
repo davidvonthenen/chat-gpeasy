@@ -4,7 +4,7 @@
 package simple
 
 import (
-	advanced "github.com/dvonthenen/chat-gpeasy/pkg/personas/advanced"
+	advanced "github.com/dvonthenen/chat-gpeasy/pkg/personas/rest/advanced"
 )
 
 type Persona struct {

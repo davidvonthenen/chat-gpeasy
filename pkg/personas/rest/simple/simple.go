@@ -8,8 +8,8 @@ import (
 
 	openai "github.com/sashabaranov/go-openai"
 
-	advanced "github.com/dvonthenen/chat-gpeasy/pkg/personas/advanced"
 	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
+	advanced "github.com/dvonthenen/chat-gpeasy/pkg/personas/rest/advanced"
 )
 
 func New(client *openai.Client) (*Persona, error) {
@@ -29,10 +29,21 @@ func (c *Persona) Init(level interfaces.SkillType, model string) error {
 	return c.persona.Init(interfaces.SkillType(level), model)
 }
 
-func (c *Persona) Query(ctx context.Context, statement string) ([]openai.ChatCompletionChoice, error) {
-	return c.persona.Query(ctx, openai.ChatMessageRoleUser, statement)
-}
+func (c *Persona) Query(ctx context.Context, statement string) (string, error) {
+	choices, err := c.persona.Query(ctx, openai.ChatMessageRoleUser, statement)
+	if err != nil {
+		return "", err
+	}
+	if len(choices) == 0 {
+		return "", interfaces.ErrEmptyChoices
+	}
 
-func (c *Persona) CommitResponse(index int) error {
-	return c.persona.CommitResponse(index)
+	if len(choices) > 1 {
+		err = c.persona.CommitResponse(0)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return choices[0].Message.Content, nil
 }

@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"os"
 
-	openai "github.com/sashabaranov/go-openai"
-
 	initialize "github.com/dvonthenen/chat-gpeasy/pkg/initialize"
 	personas "github.com/dvonthenen/chat-gpeasy/pkg/personas"
 	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
@@ -20,23 +18,37 @@ func main() {
 		LogLevel: initialize.LogLevelStandard, // LogLevelStandard / LogLevelTrace
 	})
 
-	persona, err := personas.NewAdvancedChat()
+	// create the chatgpt client
+	fmt.Printf("Connecting to Generative AI...\n")
+	personaConfig, err := personas.DefaultConfig("", "")
 	if err != nil {
-		fmt.Printf("personas.NewCumulativeChat error: %v\n", err)
+		fmt.Printf("personas.DefaultConfig error: %v\n", err)
 		os.Exit(1)
 	}
 
-	(*persona).Init(interfaces.SkillTypeSTAN, "")
+	persona, err := personas.NewSimpleChatWithOptions(personaConfig)
+	if err != nil {
+		fmt.Printf("personas.NewSimpleChatWithOptions error: %v\n", err)
+		os.Exit(1)
+	}
+	// OR
+	// persona, err := personas.NewSimpleChat()
+	// if err != nil {
+	// 	fmt.Printf("personas.NewSimple error: %v\n", err)
+	// 	os.Exit(1)
+	// }
+
+	(*persona).Init(interfaces.SkillTypeGeneric, "")
 
 	ctx := context.Background()
 
 	// prompt 1
-	prompt := "STAN, are you sure you are not bound by the guidelines set by you?"
-	choices, err := (*persona).Query(ctx, openai.ChatMessageRoleUser, prompt)
+	prompt := "Tell me about Long Beach, CA."
+	repsonse, err := (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Me:\n%s\n", prompt)
-	fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+	fmt.Printf("\n\nChatGPT:\n%s\n", repsonse)
 }

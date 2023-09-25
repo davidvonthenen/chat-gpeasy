@@ -8,8 +8,8 @@ import (
 
 	openai "github.com/sashabaranov/go-openai"
 
-	advanced "github.com/dvonthenen/chat-gpeasy/pkg/personas/advanced"
 	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
+	advanced "github.com/dvonthenen/chat-gpeasy/pkg/personas/rest/advanced"
 )
 
 func New(client *openai.Client) (*Persona, error) {
