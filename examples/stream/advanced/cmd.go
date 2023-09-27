@@ -45,7 +45,7 @@ func main() {
 		Role:    openai.ChatMessageRoleSystem,
 		Content: "You are a helpful assistant.",
 	})
-	(*persona).InitWithProvided("", conversation)
+	(*persona).DynamicInit("", conversation)
 
 	ctx := context.Background()
 
