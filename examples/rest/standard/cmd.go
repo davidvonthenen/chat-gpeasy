@@ -26,15 +26,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	persona, err := personas.NewCumulativeChatWithOptions(personaConfig)
+	persona, err := personas.NewStandardChatWithOptions(personaConfig)
 	if err != nil {
-		fmt.Printf("personas.NewCumulativeChatWithOptions error: %v\n", err)
+		fmt.Printf("personas.NewStandardChatWithOptions error: %v\n", err)
 		os.Exit(1)
 	}
 	// OR
-	// persona, err := personas.NewCumulativeChat()
+	// persona, err := personas.NewStandardChat()
 	// if err != nil {
-	// 	fmt.Printf("personas.NewCumulativeChat error: %v\n", err)
+	// 	fmt.Printf("personas.NewStandardChat error: %v\n", err)
 	// 	os.Exit(1)
 	// }
 

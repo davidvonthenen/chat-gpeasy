@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	initialize "github.com/dvonthenen/chat-gpeasy/pkg/initialize"
 	personas "github.com/dvonthenen/chat-gpeasy/pkg/personas"
@@ -49,7 +50,6 @@ func main() {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
-
 	fmt.Printf("Me:\n%s\n", prompt)
 	fmt.Printf("\n\nChatGPT:\n")
 	(*stream1).Stream(os.Stdout)
@@ -68,7 +68,6 @@ func main() {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
-
 	fmt.Printf("Me:\n%s\n", prompt)
 	fmt.Printf("\n\nChatGPT:\n")
 	(*stream2).Stream(os.Stdout)
@@ -80,7 +79,36 @@ func main() {
 	fmt.Printf("-------------------------------------------")
 	fmt.Printf("\n\n\n")
 
-	// prompt 3
+	// edit convo
+	fmt.Printf("Oooops... I goofed. I need to edit this...\n\n\n")
+	conversation, err := (*persona).GetConversation()
+	if err != nil {
+		fmt.Printf("persona.GetConversation error: %v\n", err)
+		os.Exit(1)
+	}
+
+	for pos, msg := range conversation {
+		if strings.Contains(msg.Content, "Long Beach, CA") {
+			prompt = "Tell me about Laguna Beach, CA."
+			stream3, err := (*persona).EditConversation(pos, prompt)
+			if err != nil {
+				fmt.Printf("persona.EditConversation error: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Me:\n%s\n", prompt)
+			fmt.Printf("\n\nChatGPT:\n")
+			(*stream3).Stream(os.Stdout)
+			(*stream3).Close()
+			fmt.Printf("\n")
+		}
+	}
+
+	// divider
+	fmt.Printf("\n\n\n")
+	fmt.Printf("-------------------------------------------")
+	fmt.Printf("\n\n\n")
+
+	// clarify by adding directive
 	prompt = "I want more factual type data"
 	fmt.Printf("Adding clarifying directives to AI:\n%s\n", prompt)
 	err = (*persona).AddDirective(prompt)
@@ -95,15 +123,14 @@ func main() {
 	fmt.Printf("\n\n\n")
 
 	prompt = "Now... tell me about Laguna Beach, CA."
-	stream3, err := (*persona).Query(ctx, prompt)
+	stream4, err := (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
-
 	fmt.Printf("Me:\n%s\n", prompt)
 	fmt.Printf("\n\nChatGPT:\n")
-	(*stream3).Stream(os.Stdout)
-	(*stream3).Close()
+	(*stream4).Stream(os.Stdout)
+	(*stream4).Close()
 	fmt.Printf("\n")
 }

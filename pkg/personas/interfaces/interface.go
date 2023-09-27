@@ -19,12 +19,6 @@ type SimpleChat interface {
 type StandardChat interface {
 	Init(level SkillType, model string) error
 	Query(ctx context.Context, statement string) ([]openai.ChatCompletionChoice, error)
-	CommitResponse(index int) error
-}
-
-type CumulativeChat interface {
-	Init(level SkillType, model string) error
-	Query(ctx context.Context, statement string) ([]openai.ChatCompletionChoice, error)
 	AddDirective(directives string) error
 	CommitResponse(index int) error
 }
@@ -45,10 +39,18 @@ type StreamingCompletion interface {
 	Close() error
 }
 
+type StandardChatStream interface {
+	Init(level SkillType, model string) error
+	GetConversation() ([]openai.ChatCompletionMessage, error)
+	Query(ctx context.Context, statement string) (*StreamingCompletion, error)
+	AddDirective(directives string) error
+}
+
 type AdvancedChatStream interface {
 	Init(level SkillType, model string) error
 	InitWithProvided(previous []openai.ChatCompletionMessage) error
 	GetConversation() ([]openai.ChatCompletionMessage, error)
+	EditConversation(index int, statement string) (*StreamingCompletion, error)
 	Query(ctx context.Context, statement string) (*StreamingCompletion, error)
 	AddDirective(directives string) error
 }

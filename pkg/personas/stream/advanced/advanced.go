@@ -106,6 +106,92 @@ func (p *Persona) GetConversation() ([]openai.ChatCompletionMessage, error) {
 	return p.conversation, nil
 }
 
+func (p *Persona) EditConversation(index int, statement string) (*interfaces.StreamingCompletion, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	klog.V(6).Infof("advanced.EditConversation ENTER\n")
+	klog.V(5).Infof("index: %d\n", index)
+	klog.V(5).Infof("statement: %s\n", statement)
+
+	numOfConvo := len(p.conversation)
+
+	if index < 0 || index >= numOfConvo {
+		klog.V(1).Infof("invalid index (%d) must be between 0 and %d\n", numOfConvo, (numOfConvo - 1))
+		return nil, interfaces.ErrInvalidInput
+	}
+	if len(statement) == 0 {
+		klog.V(1).Infof("statement is empty\n")
+		return nil, interfaces.ErrInvalidInput
+	}
+
+	convo := make([]openai.ChatCompletionMessage, 0)
+
+	for pos, msg := range p.conversation {
+		if pos == (numOfConvo-1) && msg.Role == openai.ChatMessageRoleAssistant {
+			klog.V(3).Infof("skip last chatgpt response for a redo/rebuild\n")
+			break
+		}
+		if pos == index {
+			if msg.Role == openai.ChatMessageRoleAssistant {
+				klog.V(1).Infof("unable to edit the response to queries/prompts\n")
+				klog.V(6).Infof("advanced.EditConversation LEAVE\n")
+				return nil, interfaces.ErrInvalidInput
+			}
+			klog.V(3).Infof("placing:\n%s\n\nwith:\n%s\n", msg.Content, statement)
+			convo = append(convo, openai.ChatCompletionMessage{
+				Role:    msg.Role,
+				Content: statement,
+			})
+		} else {
+			convo = append(convo, msg)
+		}
+	}
+
+	for _, msg := range convo {
+		klog.V(5).Infof("Updated convo (type: %s): %s\n", msg.Role, msg.Content)
+	}
+
+	// requery
+	request := openai.ChatCompletionRequest{
+		Model:    p.model,
+		Messages: convo,
+	}
+
+	ctx := context.Background()
+	stream, err := p.client.CreateChatCompletionStream(ctx, request)
+	if err != nil {
+		klog.V(1).Infof("CreateChatCompletionStream error: %v\n", err)
+		klog.V(6).Infof("advanced.EditConversation LEAVE\n")
+		return nil, err
+	}
+
+	// housekeeping
+	p.appendedResponse = false
+	p.conversation = convo
+
+	var cb CommitCallback
+	cb = p
+
+	scc := StreamingChatCompletion{
+		stopChan: make(chan struct{}),
+		stream:   stream,
+		callback: &cb,
+	}
+
+	var streamingcompletion interfaces.StreamingCompletion
+	streamingcompletion = scc
+
+	for _, msg := range p.conversation {
+		klog.V(5).Infof("Output message (type: %s): %s\n", msg.Role, msg.Content)
+	}
+
+	klog.V(4).Infof("advanced.Query Succeeded\n")
+	klog.V(6).Infof("advanced.Query LEAVE\n")
+
+	return &streamingcompletion, nil
+}
+
 func (p *Persona) Query(ctx context.Context, statement string) (*interfaces.StreamingCompletion, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -140,7 +226,7 @@ func (p *Persona) Query(ctx context.Context, statement string) (*interfaces.Stre
 		Stream:   true,
 	})
 	if err != nil {
-		klog.V(1).Infof("error creating chat completion stream", err)
+		klog.V(1).Infof("CreateChatCompletionStream failed. Err: %v\n", err)
 		return nil, err
 	}
 
