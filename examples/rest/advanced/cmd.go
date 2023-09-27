@@ -13,7 +13,6 @@ import (
 
 	initialize "github.com/dvonthenen/chat-gpeasy/pkg/initialize"
 	personas "github.com/dvonthenen/chat-gpeasy/pkg/personas"
-	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
 )
 
 func main() {
@@ -41,7 +40,12 @@ func main() {
 	// 	os.Exit(1)
 	// }
 
-	(*persona).Init(interfaces.SkillTypeGeneric, "")
+	conversation := make([]openai.ChatCompletionMessage, 0)
+	conversation = append(conversation, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleSystem,
+		Content: "You are a helpful assistant.",
+	})
+	(*persona).InitWithProvided("", conversation)
 
 	ctx := context.Background()
 
@@ -77,7 +81,7 @@ func main() {
 
 	// edit convo
 	fmt.Printf("Oooops... I goofed. I need to edit this...\n\n\n")
-	conversation, err := (*persona).GetConversation()
+	conversation, err = (*persona).GetConversation()
 	if err != nil {
 		fmt.Printf("persona.GetConversation error: %v\n", err)
 		os.Exit(1)

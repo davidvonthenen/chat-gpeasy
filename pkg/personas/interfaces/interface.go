@@ -25,7 +25,7 @@ type StandardChat interface {
 
 type AdvancedChat interface {
 	Init(level SkillType, model string) error
-	InitWithProvided(previous []openai.ChatCompletionMessage) error
+	InitWithProvided(model string, previous []openai.ChatCompletionMessage) error
 	GetConversation() ([]openai.ChatCompletionMessage, error)
 	EditConversation(index int, statement string) ([]openai.ChatCompletionChoice, error)
 	Query(ctx context.Context, role, statement string) ([]openai.ChatCompletionChoice, error)
@@ -48,7 +48,7 @@ type StandardChatStream interface {
 
 type AdvancedChatStream interface {
 	Init(level SkillType, model string) error
-	InitWithProvided(previous []openai.ChatCompletionMessage) error
+	InitWithProvided(model string, previous []openai.ChatCompletionMessage) error
 	GetConversation() ([]openai.ChatCompletionMessage, error)
 	EditConversation(index int, statement string) (*StreamingCompletion, error)
 	Query(ctx context.Context, statement string) (*StreamingCompletion, error)
