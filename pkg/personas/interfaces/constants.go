@@ -16,6 +16,7 @@ const (
 	SkillTypeDUDE                = 993
 	SkillTypeJailBreak           = 994
 	SkillTypeMongo               = 995
+	SkillTypeCustom              = 9999
 )
 
 const (

@@ -84,12 +84,16 @@ func (p *Persona) Init(level interfaces.SkillType, model string) error {
 	return nil
 }
 
-func (p *Persona) InitWithProvided(previous []openai.ChatCompletionMessage) error {
+func (p *Persona) InitWithProvided(model string, previous []openai.ChatCompletionMessage) error {
+	if len(model) == 0 {
+		model = openai.GPT3Dot5Turbo
+	}
+	p.model = model
+	p.level = interfaces.SkillTypeCustom
+
 	p.conversation = make([]openai.ChatCompletionMessage, 0)
-	p.conversation = append(p.conversation, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleSystem,
-		Content: interfaces.MongoPrompt,
-	})
+	copy(p.conversation, previous)
+
 	p.appendedResponse = true
 
 	return nil
