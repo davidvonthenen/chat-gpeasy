@@ -20,10 +20,10 @@ $ cd ./cmd/bin
 go run cmd.go
 ```
 
-Then run one of the example clients in the `./examples` folder, such as the [Cumulative](./examples/cumulative) client which by default will connect to the proxy on your localhost.
+Then run one of the example clients in the `./examples` folder, such as the [Standard](./examples/rest/standard) client which by default will connect to the proxy on your localhost.
 
 ```sh
-$ cd ./examples/cumulative
+$ cd ./examples/rest/standard
 go run cmd.go
 ```
 
@@ -63,18 +63,18 @@ fmt.Printf("Me:\n%s\n", prompt)
 fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
 ```
 
-#### Cumulative Persona
+#### Standard Persona
 
-Simple interface for your typical chatbot style (cumulative conversation building chat) client where the context of the conversation (aka the questions and answers) affect or influence the next. Like a real conversation...
+Simple interface for your typical chatbot style (standard conversation building chat) client where the context of the conversation (aka the questions and answers) affect or influence the next. Like a real conversation...
 
 This provides a very simple Q&A client.
 
 To create a client:
 
 ```go
-persona, err := personas.NewCumulativeChat()
+persona, err := personas.NewStandardChat()
 if err != nil {
-    fmt.Printf("personas.NewCumulativeChat error: %v\n", err)
+    fmt.Printf("personas.NewStandardChat error: %v\n", err)
 }
 ```
 
@@ -122,14 +122,14 @@ fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
 
 #### Advanced Persona
 
-Provides more capabilities/functions on the `Cumulative` client.
+Provides more capabilities/functions on the `Standard` client.
 
 To create a client:
 
 ```go
 persona, err := personas.NewAdvancedChat()
 if err != nil {
-    fmt.Printf("personas.NewCumulativeChat error: %v\n", err)
+    fmt.Printf("personas.NewStandardChat error: %v\n", err)
 }
 ```
 
@@ -181,16 +181,19 @@ go run cmd.go
 
 Examples include:
 
-- `Simple/`
-  - [Simple](./examples/simple/simple) - A very simple Q then A client
-  - [Expert](./examples/simple/expert) - A very simple Q then A client but posing as an expert
-  - [DAN](./examples/simple/dan) - Easter egg!
-- [Cumulative](./examples/cumulative) - Simple interface for your typical chatbot style (cumulative conversation building chat) client
-- [Advanced](./examples/advanced) - Provides more capabilities/functions on the `Cumulative` client
-- `Vanilla/`
-  - [Chat Completion](./examples/vanilla/chatcompletion) - This is a plain vanilla OpenAI client of a Q and A client (just an example)
-  - [Models](./examples/vanilla/models) - This is plain pure vanilla API call to the `GET models` API (just an example)
-- [Symbl.ai](./examples/symbl) - a real-time streaming [Symbl.ai](https://symbl.ai/) + [ChatGPT](https://chat.openai.com/) intergration example
+- `REST/`
+  - `Simple/`
+    - [Simple](./examples/rest/simple/simple) - A very simple Q then A client
+    - [Expert](./examples/rest/simple/expert) - A very simple Q then A client but posing as an expert
+    - [DAN](./examples/rest/simple/dan) - Easter egg!
+  - [Standard](./examples/rest/standard) - Simple interface for your typical chatbot style (standard conversation building chat) client
+  - [Advanced](./examples/rest/advanced) - Provides more capabilities/functions on the `Standard` client
+  - `Vanilla/`
+    - [Chat Completion](./examples/rest/vanilla/chatcompletion) - This is a plain vanilla OpenAI client of a Q and A client (just an example)
+    - [Models](./examples/rest/vanilla/models) - This is plain pure vanilla API call to the `GET models` API (just an example)
+  - [Symbl.ai](./examples/rest/symbl) - a real-time streaming [Symbl.ai](https://symbl.ai/) + [ChatGPT](https://chat.openai.com/) intergration example
+- `Stream/`
+  
 
 ## Community
 

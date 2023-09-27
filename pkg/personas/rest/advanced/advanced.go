@@ -121,7 +121,7 @@ func (p *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 		return nil, interfaces.ErrInvalidInput
 	}
 
-	klog.V(6).Infof("cumulative.EditConversation ENTER\n")
+	klog.V(6).Infof("advanced.EditConversation ENTER\n")
 	klog.V(5).Infof("index: %d\n", index)
 	klog.V(5).Infof("statement: %s\n", statement)
 
@@ -135,7 +135,7 @@ func (p *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 		if pos == index {
 			if msg.Role == openai.ChatMessageRoleAssistant {
 				klog.V(1).Infof("unable to edit the response to queries/prompts\n")
-				klog.V(6).Infof("cumulative.EditConversation LEAVE\n")
+				klog.V(6).Infof("advanced.EditConversation LEAVE\n")
 				return nil, interfaces.ErrInvalidInput
 			}
 			klog.V(3).Infof("placing:\n%s\n\nwith:\n%s\n", msg.Content, statement)
@@ -162,7 +162,7 @@ func (p *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 	response, err := p.client.CreateChatCompletion(ctx, request)
 	if err != nil {
 		klog.V(1).Infof("CreateChatCompletion error: %v\n", err)
-		klog.V(6).Infof("cumulative.EditConversation LEAVE\n")
+		klog.V(6).Infof("advanced.EditConversation LEAVE\n")
 		return nil, err
 	}
 
@@ -181,8 +181,8 @@ func (p *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 		klog.V(5).Infof("Output message (type: %s): %s\n", msg.Role, msg.Content)
 	}
 
-	klog.V(4).Infof("cumulative.Query Succeeded\n")
-	klog.V(6).Infof("cumulative.Query LEAVE\n")
+	klog.V(4).Infof("advanced.Query Succeeded\n")
+	klog.V(6).Infof("advanced.Query LEAVE\n")
 
 	return response.Choices, nil
 }
@@ -210,7 +210,7 @@ func (p *Persona) Query(ctx context.Context, role, statement string) ([]openai.C
 		return nil, interfaces.ErrInvalidInput
 	}
 
-	klog.V(6).Infof("cumulative.Query ENTER\n")
+	klog.V(6).Infof("advanced.Query ENTER\n")
 	klog.V(5).Infof("role: %s\n", role)
 	klog.V(5).Infof("statement: %s\n", statement)
 
@@ -233,7 +233,7 @@ func (p *Persona) Query(ctx context.Context, role, statement string) ([]openai.C
 	response, err := p.client.CreateChatCompletion(ctx, request)
 	if err != nil {
 		klog.V(1).Infof("CreateChatCompletion error: %v\n", err)
-		klog.V(6).Infof("cumulative.Query LEAVE\n")
+		klog.V(6).Infof("advanced.Query LEAVE\n")
 		return nil, err
 	}
 
@@ -252,8 +252,8 @@ func (p *Persona) Query(ctx context.Context, role, statement string) ([]openai.C
 		klog.V(5).Infof("Output message (type: %s): %s\n", msg.Role, msg.Content)
 	}
 
-	klog.V(4).Infof("cumulative.Query Succeeded\n")
-	klog.V(6).Infof("cumulative.Query LEAVE\n")
+	klog.V(4).Infof("advanced.Query Succeeded\n")
+	klog.V(6).Infof("advanced.Query LEAVE\n")
 
 	return response.Choices, nil
 }
@@ -281,22 +281,22 @@ func (p *Persona) CommitResponse(index int) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	klog.V(6).Infof("cumulative.CommitResponse ENTER\n")
+	klog.V(6).Infof("advanced.CommitResponse ENTER\n")
 	klog.V(5).Infof("index: %d\n", index)
 
 	if p.appendedResponse {
 		klog.V(1).Infof("already appended response\n")
-		klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
+		klog.V(6).Infof("advanced.CommitResponse LEAVE\n")
 		return interfaces.ErrInvalidInput
 	}
 	if p.response == nil {
 		klog.V(1).Infof("response is empty\n")
-		klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
+		klog.V(6).Infof("advanced.CommitResponse LEAVE\n")
 		return interfaces.ErrInvalidInput
 	}
 	if len(p.response.Choices) == 0 {
 		klog.V(1).Infof("not choices generated\n")
-		klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
+		klog.V(6).Infof("advanced.CommitResponse LEAVE\n")
 		return interfaces.ErrInvalidInput
 	}
 
@@ -310,7 +310,7 @@ func (p *Persona) CommitResponse(index int) error {
 
 	if p.appendedResponse {
 		klog.V(1).Infof("response %d not found\n", index)
-		klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
+		klog.V(6).Infof("advanced.CommitResponse LEAVE\n")
 		return interfaces.ErrInvalidInput
 	}
 
@@ -319,6 +319,6 @@ func (p *Persona) CommitResponse(index int) error {
 	}
 
 	klog.V(4).Infof("response %d found\n", index)
-	klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
+	klog.V(6).Infof("advanced.CommitResponse LEAVE\n")
 	return nil
 }

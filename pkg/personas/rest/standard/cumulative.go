@@ -33,6 +33,10 @@ func (c *Persona) Query(ctx context.Context, statement string) ([]openai.ChatCom
 	return c.persona.Query(ctx, openai.ChatMessageRoleUser, statement)
 }
 
+func (c *Persona) AddDirective(directives string) error {
+	return c.persona.AddDirective(directives)
+}
+
 func (c *Persona) CommitResponse(index int) error {
 	return c.persona.CommitResponse(index)
 }

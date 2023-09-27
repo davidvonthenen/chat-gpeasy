@@ -6,7 +6,6 @@ package personas
 import (
 	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
 	advanced "github.com/dvonthenen/chat-gpeasy/pkg/personas/rest/advanced"
-	cumulative "github.com/dvonthenen/chat-gpeasy/pkg/personas/rest/cumulative"
 	simple "github.com/dvonthenen/chat-gpeasy/pkg/personas/rest/simple"
 	standard "github.com/dvonthenen/chat-gpeasy/pkg/personas/rest/standard"
 )
@@ -77,40 +76,6 @@ func NewStandardChatWithOptions(opt *PersonaOptions) (*interfaces.StandardChat, 
 	standard = standardChat
 
 	return &standard, nil
-}
-
-func NewCumulativeChat() (*interfaces.CumulativeChat, error) {
-	client, err := newClient()
-	if err != nil {
-		return nil, err
-	}
-
-	cumulativeChat, err := cumulative.New(client)
-	if err != nil {
-		return nil, err
-	}
-
-	var cumulative interfaces.CumulativeChat
-	cumulative = cumulativeChat
-
-	return &cumulative, nil
-}
-
-func NewCumulativeChatWithOptions(opt *PersonaOptions) (*interfaces.CumulativeChat, error) {
-	client, err := newWithOptions(opt)
-	if err != nil {
-		return nil, err
-	}
-
-	cumulativeChat, err := cumulative.New(client)
-	if err != nil {
-		return nil, err
-	}
-
-	var cumulative interfaces.CumulativeChat
-	cumulative = cumulativeChat
-
-	return &cumulative, nil
 }
 
 func NewAdvancedChat() (*interfaces.AdvancedChat, error) {
