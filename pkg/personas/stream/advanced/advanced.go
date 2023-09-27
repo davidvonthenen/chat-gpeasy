@@ -85,6 +85,26 @@ func (p *Persona) Init(level interfaces.SkillType, model string) error {
 }
 
 func (p *Persona) InitWithProvided(model string, previous []openai.ChatCompletionMessage) error {
+	if p.appendedResponse {
+		klog.V(1).Infof("Init has already been called\n")
+		return interfaces.ErrInitAlready
+	}
+
+	if len(model) == 0 {
+		model = openai.GPT3Dot5Turbo
+	}
+	p.model = model
+	p.level = interfaces.SkillTypeCustom
+
+	p.conversation = make([]openai.ChatCompletionMessage, 0)
+	copy(p.conversation, previous)
+
+	p.appendedResponse = true
+
+	return nil
+}
+
+func (p *Persona) DynamicInit(model string, previous []openai.ChatCompletionMessage) error {
 	if len(model) == 0 {
 		model = openai.GPT3Dot5Turbo
 	}

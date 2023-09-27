@@ -99,6 +99,21 @@ func (p *Persona) InitWithProvided(model string, previous []openai.ChatCompletio
 	return nil
 }
 
+func (p *Persona) DynamicInit(model string, previous []openai.ChatCompletionMessage) error {
+	if len(model) == 0 {
+		model = openai.GPT3Dot5Turbo
+	}
+	p.model = model
+	p.level = interfaces.SkillTypeCustom
+
+	p.conversation = make([]openai.ChatCompletionMessage, 0)
+	copy(p.conversation, previous)
+
+	p.appendedResponse = true
+
+	return nil
+}
+
 func (p *Persona) GetConversation() ([]openai.ChatCompletionMessage, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
