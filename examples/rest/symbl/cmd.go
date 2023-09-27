@@ -14,7 +14,7 @@ import (
 	microphone "github.com/dvonthenen/symbl-go-sdk/pkg/audio/microphone"
 	symbl "github.com/dvonthenen/symbl-go-sdk/pkg/client"
 
-	handler "github.com/dvonthenen/chat-gpeasy/examples/symbl/handler"
+	handler "github.com/dvonthenen/chat-gpeasy/examples/rest/symbl/handler"
 	initialize "github.com/dvonthenen/chat-gpeasy/pkg/initialize"
 	personas "github.com/dvonthenen/chat-gpeasy/pkg/personas"
 	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
@@ -42,13 +42,13 @@ func main() {
 		fmt.Printf("personas.NewSimpleChatWithOptions error: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Connection Succeeded\n")
-
+	// OR
 	// persona, err := personas.NewSimpleChat()
 	// if err != nil {
 	// 	fmt.Printf("personas.NewSimple error: %v\n", err)
 	// 	os.Exit(1)
 	// }
+	fmt.Printf("Connection Succeeded\n")
 
 	(*persona).Init(interfaces.SkillTypeGeneric, "")
 

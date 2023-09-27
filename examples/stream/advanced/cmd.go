@@ -7,9 +7,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
-
-	openai "github.com/sashabaranov/go-openai"
 
 	initialize "github.com/dvonthenen/chat-gpeasy/pkg/initialize"
 	personas "github.com/dvonthenen/chat-gpeasy/pkg/personas"
@@ -18,14 +15,28 @@ import (
 
 func main() {
 	initialize.Init(initialize.ChatGPTProxyInit{
-		LogLevel: initialize.LogLevelStandard, // LogLevelStandard / LogLevelTrace
+		LogLevel: initialize.LogLevelStandard, // LogLevelStandard / LogLevelTrace / LogLevelVerbose
 	})
 
-	persona, err := personas.NewAdvancedChat()
+	// create the chatgpt client
+	fmt.Printf("Connecting to Generative AI...\n")
+	personaConfig, err := personas.DefaultConfig("", "")
 	if err != nil {
-		fmt.Printf("personas.NewCumulativeChat error: %v\n", err)
+		fmt.Printf("personas.DefaultConfig error: %v\n", err)
 		os.Exit(1)
 	}
+
+	persona, err := personas.NewAdvancedChatStreamWithOptions(personaConfig)
+	if err != nil {
+		fmt.Printf("personas.NewAdvancedChatStreamWithOptions error: %v\n", err)
+		os.Exit(1)
+	}
+	// OR
+	// persona, err := personas.NewAdvancedChatStream()
+	// if err != nil {
+	// 	fmt.Printf("personas.NewAdvancedChatStream error: %v\n", err)
+	// 	os.Exit(1)
+	// }
 
 	(*persona).Init(interfaces.SkillTypeGeneric, "")
 
@@ -33,13 +44,17 @@ func main() {
 
 	// prompt 1
 	prompt := "Hello! How are you doing?"
-	choices, err := (*persona).Query(ctx, openai.ChatMessageRoleUser, prompt)
+	stream1, err := (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
+
 	fmt.Printf("Me:\n%s\n", prompt)
-	fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+	fmt.Printf("\n\nChatGPT:\n")
+	(*stream1).Stream(os.Stdout)
+	(*stream1).Close()
+	fmt.Printf("\n")
 
 	// divider
 	fmt.Printf("\n\n\n")
@@ -48,39 +63,17 @@ func main() {
 
 	// prompt 2
 	prompt = "Tell me about Long Beach, CA."
-	choices, err = (*persona).Query(ctx, openai.ChatMessageRoleUser, prompt)
+	stream2, err := (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
+
 	fmt.Printf("Me:\n%s\n", prompt)
-	fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
-
-	// divider
-	fmt.Printf("\n\n\n")
-	fmt.Printf("-------------------------------------------")
-	fmt.Printf("\n\n\n")
-
-	// edit convo
-	fmt.Printf("Oooops... I goofed. I need to edit this...\n\n\n")
-	conversation, err := (*persona).GetConversation()
-	if err != nil {
-		fmt.Printf("persona.GetConversation error: %v\n", err)
-		os.Exit(1)
-	}
-
-	for pos, msg := range conversation {
-		if strings.Contains(msg.Content, "Long Beach, CA") {
-			prompt = "Tell me about Laguna Beach, CA."
-			choices, err := (*persona).EditConversation(pos, prompt)
-			if err != nil {
-				fmt.Printf("persona.EditConversation error: %v\n", err)
-				os.Exit(1)
-			}
-			fmt.Printf("Me:\n%s\n", prompt)
-			fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
-		}
-	}
+	fmt.Printf("\n\nChatGPT:\n")
+	(*stream2).Stream(os.Stdout)
+	(*stream2).Close()
+	fmt.Printf("\n")
 
 	// divider
 	fmt.Printf("\n\n\n")
@@ -102,11 +95,15 @@ func main() {
 	fmt.Printf("\n\n\n")
 
 	prompt = "Now... tell me about Laguna Beach, CA."
-	choices, err = (*persona).Query(ctx, openai.ChatMessageRoleUser, prompt)
+	stream3, err := (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
+
 	fmt.Printf("Me:\n%s\n", prompt)
-	fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+	fmt.Printf("\n\nChatGPT:\n")
+	(*stream3).Stream(os.Stdout)
+	(*stream3).Close()
+	fmt.Printf("\n")
 }

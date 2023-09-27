@@ -72,14 +72,14 @@ func (h *Handler) TopicResponseMessage(tr *sdkinterfaces.TopicResponse) error {
 		prompt := fmt.Sprintf("The topic of \"%s\" came up in this conversation I am having. Come up with 2 general facts and 2 obscure facts about this topic.\n", curTopic.Phrases)
 
 		ctx := context.Background()
-		choices, err := (*h.simple).Query(ctx, prompt)
+		message, err := (*h.simple).Query(ctx, prompt)
 		if err != nil {
 			fmt.Printf("persona.Query error: %v\n", err)
 			return err
 		}
 		fmt.Printf("\n\n-------------------------------\n")
 		fmt.Printf("TOPIC:\n%s\n", prompt)
-		fmt.Printf("\n\nGenerative AI:\n%s\n", choices[0].Message.Content)
+		fmt.Printf("\n\nChatGPT:\n%s\n", message)
 		fmt.Printf("-------------------------------\n\n")
 
 	}
@@ -93,14 +93,14 @@ func (h *Handler) TrackerResponseMessage(tr *sdkinterfaces.TrackerResponse) erro
 			prompt := fmt.Sprintf("The topic of \"%s\" came up in this conversation I am having. Come up with 2 general facts and 2 obscure facts about this topic.\n", match.Value)
 
 			ctx := context.Background()
-			choices, err := (*h.simple).Query(ctx, prompt)
+			message, err := (*h.simple).Query(ctx, prompt)
 			if err != nil {
 				fmt.Printf("persona.Query error: %v\n", err)
 				return err
 			}
 			fmt.Printf("\n\n-------------------------------\n")
 			fmt.Printf("TRACKER:\n%s\n", prompt)
-			fmt.Printf("\n\nGenerative AI:\n%s\n", choices[0].Message.Content)
+			fmt.Printf("\n\nChatGPT:\n%s\n", message)
 			fmt.Printf("-------------------------------\n\n")
 		}
 	}
@@ -114,14 +114,14 @@ func (h *Handler) EntityResponseMessage(er *sdkinterfaces.EntityResponse) error 
 			prompt := fmt.Sprintf("Someone mentioned \"%s\" in this conversation I am having. Come up with 2 general facts and 2 obscure facts about \"%s\".\n", match.DetectedValue, match.DetectedValue)
 
 			ctx := context.Background()
-			choices, err := (*h.simple).Query(ctx, prompt)
+			message, err := (*h.simple).Query(ctx, prompt)
 			if err != nil {
 				fmt.Printf("persona.Query error: %v\n", err)
 				return err
 			}
 			fmt.Printf("\n\n-------------------------------\n")
 			fmt.Printf("ENTITY:\n%s\n", prompt)
-			fmt.Printf("\n\nGenerative AI:\n%s\n", choices[0].Message.Content)
+			fmt.Printf("\n\nChatGPT:\n%s\n", message)
 			fmt.Printf("-------------------------------\n\n")
 		}
 	}
@@ -151,14 +151,14 @@ func (h *Handler) HandleQuestion(insight *sdkinterfaces.Insight, number int) err
 	prompt := fmt.Sprintf("Someone is asking the following question below:\n\n\"%s\"\n\nCome up with 3 different concise answers that someone with more than a passing familiarity in the subject might reply with. Provide a small detail as proof of you being a familiar in that subject.\n", insight.Payload.Content)
 
 	ctx := context.Background()
-	choices, err := (*h.simple).Query(ctx, prompt)
+	message, err := (*h.simple).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		return err
 	}
 	fmt.Printf("\n\n-------------------------------\n")
 	fmt.Printf("QUESTION:\n%s\n", prompt)
-	fmt.Printf("\n\nGenerative AI:\n%s\n", choices[0].Message.Content)
+	fmt.Printf("\n\nChatGPT:\n%s\n", message)
 	fmt.Printf("-------------------------------\n\n")
 
 	return nil

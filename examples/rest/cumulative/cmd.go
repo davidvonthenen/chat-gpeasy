@@ -18,11 +18,25 @@ func main() {
 		LogLevel: initialize.LogLevelStandard, // LogLevelStandard / LogLevelTrace
 	})
 
-	persona, err := personas.NewCumulativeChat()
+	// create the chatgpt client
+	fmt.Printf("Connecting to Generative AI...\n")
+	personaConfig, err := personas.DefaultConfig("", "")
 	if err != nil {
-		fmt.Printf("personas.NewCumulativeChat error: %v\n", err)
+		fmt.Printf("personas.DefaultConfig error: %v\n", err)
 		os.Exit(1)
 	}
+
+	persona, err := personas.NewCumulativeChatWithOptions(personaConfig)
+	if err != nil {
+		fmt.Printf("personas.NewCumulativeChatWithOptions error: %v\n", err)
+		os.Exit(1)
+	}
+	// OR
+	// persona, err := personas.NewCumulativeChat()
+	// if err != nil {
+	// 	fmt.Printf("personas.NewCumulativeChat error: %v\n", err)
+	// 	os.Exit(1)
+	// }
 
 	(*persona).Init(interfaces.SkillTypeGeneric, "")
 

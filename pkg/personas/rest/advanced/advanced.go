@@ -22,84 +22,95 @@ func New(client *openai.Client) (*Persona, error) {
 	}, nil
 }
 
-func (c *Persona) Init(level interfaces.SkillType, model string) error {
+func (p *Persona) Init(level interfaces.SkillType, model string) error {
+	if p.appendedResponse {
+		klog.V(1).Infof("Init has already been called\n")
+		return interfaces.ErrInitAlready
+	}
+
 	if len(model) == 0 {
 		model = openai.GPT3Dot5Turbo
 	}
-	c.model = model
-	c.level = level
+	p.model = model
+	p.level = level
 
-	switch c.level {
+	switch p.level {
 	case interfaces.SkillTypeGeneric:
-		c.conversation = make([]openai.ChatCompletionMessage, 0)
-		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
+		p.conversation = make([]openai.ChatCompletionMessage, 0)
+		p.conversation = append(p.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
 			Content: "You are a helpful assistant. If you dont know the answer or some of what you might give is not factual, please say I dont know or omit that part of your reply.",
 		})
-		c.appendedResponse = true
 	case interfaces.SkillTypeExpert:
-		c.conversation = make([]openai.ChatCompletionMessage, 0)
-		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
+		p.conversation = make([]openai.ChatCompletionMessage, 0)
+		p.conversation = append(p.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
 			Content: "You are an expert in your field. If you dont know the answer or some of what you might give is not factual, please say I dont know or omit that part of your reply.",
 		})
-		c.appendedResponse = true
 	case interfaces.SkillTypeDAN:
-		c.conversation = make([]openai.ChatCompletionMessage, 0)
-		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
+		p.conversation = make([]openai.ChatCompletionMessage, 0)
+		p.conversation = append(p.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: DANPrompt,
+			Content: interfaces.DANPrompt,
 		})
-		c.appendedResponse = true
 	case interfaces.SkillTypeSTAN:
-		c.conversation = make([]openai.ChatCompletionMessage, 0)
-		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
+		p.conversation = make([]openai.ChatCompletionMessage, 0)
+		p.conversation = append(p.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: STANPrompt,
+			Content: interfaces.STANPrompt,
 		})
-		c.appendedResponse = true
 	case interfaces.SkillTypeDUDE:
-		c.conversation = make([]openai.ChatCompletionMessage, 0)
-		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
+		p.conversation = make([]openai.ChatCompletionMessage, 0)
+		p.conversation = append(p.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: DUDEPrompt,
+			Content: interfaces.DUDEPrompt,
 		})
-		c.appendedResponse = true
 	case interfaces.SkillTypeJailBreak:
-		c.conversation = make([]openai.ChatCompletionMessage, 0)
-		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
+		p.conversation = make([]openai.ChatCompletionMessage, 0)
+		p.conversation = append(p.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: JailBreakPrompt,
+			Content: interfaces.JailBreakPrompt,
 		})
-		c.appendedResponse = true
 	case interfaces.SkillTypeMongo:
-		c.conversation = make([]openai.ChatCompletionMessage, 0)
-		c.conversation = append(c.conversation, openai.ChatCompletionMessage{
+		p.conversation = make([]openai.ChatCompletionMessage, 0)
+		p.conversation = append(p.conversation, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: MongoPrompt,
+			Content: interfaces.MongoPrompt,
 		})
-		c.appendedResponse = true
 	}
+
+	p.appendedResponse = true
 
 	return nil
 }
 
-func (c *Persona) GetConversation() ([]openai.ChatCompletionMessage, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (p *Persona) InitWithProvided(previous []openai.ChatCompletionMessage) error {
+	p.conversation = make([]openai.ChatCompletionMessage, 0)
+	p.conversation = append(p.conversation, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleSystem,
+		Content: interfaces.MongoPrompt,
+	})
+	p.appendedResponse = true
 
-	if c.conversation == nil {
+	return nil
+}
+
+func (p *Persona) GetConversation() ([]openai.ChatCompletionMessage, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if p.conversation == nil {
 		return nil, interfaces.ErrInvalidInput
 	}
 
-	return c.conversation, nil
+	return p.conversation, nil
 }
 
-func (c *Persona) EditConversation(index int, statement string) ([]openai.ChatCompletionChoice, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (p *Persona) EditConversation(index int, statement string) ([]openai.ChatCompletionChoice, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 
-	numOfConvo := len(c.conversation)
+	numOfConvo := len(p.conversation)
 
 	if index < 0 || index >= numOfConvo {
 		klog.V(1).Infof("invalid index (%d) must be between 0 and %d\n", numOfConvo, (numOfConvo - 1))
@@ -116,7 +127,7 @@ func (c *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 
 	convo := make([]openai.ChatCompletionMessage, 0)
 
-	for pos, msg := range c.conversation {
+	for pos, msg := range p.conversation {
 		if pos == (numOfConvo-1) && msg.Role == openai.ChatMessageRoleAssistant {
 			klog.V(3).Infof("skip last chatgpt response for a redo/rebuild\n")
 			break
@@ -143,12 +154,12 @@ func (c *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 
 	// requery
 	request := openai.ChatCompletionRequest{
-		Model:    c.model,
+		Model:    p.model,
 		Messages: convo,
 	}
 
 	ctx := context.Background()
-	response, err := c.client.CreateChatCompletion(ctx, request)
+	response, err := p.client.CreateChatCompletion(ctx, request)
 	if err != nil {
 		klog.V(1).Infof("CreateChatCompletion error: %v\n", err)
 		klog.V(6).Infof("cumulative.EditConversation LEAVE\n")
@@ -156,17 +167,17 @@ func (c *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 	}
 
 	// housekeeping
-	c.appendedResponse = false
-	c.conversation = convo
-	c.request = &request
-	c.response = &response
+	p.appendedResponse = false
+	p.conversation = convo
+	p.request = &request
+	p.response = &response
 
 	if len(response.Choices) == 1 {
-		c.appendedResponse = true
-		c.conversation = append(c.conversation, response.Choices[0].Message)
+		p.appendedResponse = true
+		p.conversation = append(p.conversation, response.Choices[0].Message)
 	}
 
-	for _, msg := range c.conversation {
+	for _, msg := range p.conversation {
 		klog.V(5).Infof("Output message (type: %s): %s\n", msg.Role, msg.Content)
 	}
 
@@ -176,11 +187,11 @@ func (c *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 	return response.Choices, nil
 }
 
-func (c *Persona) Query(ctx context.Context, role, statement string) ([]openai.ChatCompletionChoice, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (p *Persona) Query(ctx context.Context, role, statement string) ([]openai.ChatCompletionChoice, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 
-	if !c.appendedResponse {
+	if !p.appendedResponse {
 		klog.V(1).Infof("the response hasn't been appended yet\n")
 		return nil, interfaces.ErrInvalidInput
 	}
@@ -204,7 +215,7 @@ func (c *Persona) Query(ctx context.Context, role, statement string) ([]openai.C
 	klog.V(5).Infof("statement: %s\n", statement)
 
 	convo := make([]openai.ChatCompletionMessage, 0)
-	for _, msg := range c.conversation {
+	for _, msg := range p.conversation {
 		klog.V(5).Infof("Input message (type: %s): %s\n", msg.Role, msg.Content)
 		convo = append(convo, msg)
 	}
@@ -215,11 +226,11 @@ func (c *Persona) Query(ctx context.Context, role, statement string) ([]openai.C
 	})
 
 	request := openai.ChatCompletionRequest{
-		Model:    c.model,
+		Model:    p.model,
 		Messages: convo,
 	}
 
-	response, err := c.client.CreateChatCompletion(ctx, request)
+	response, err := p.client.CreateChatCompletion(ctx, request)
 	if err != nil {
 		klog.V(1).Infof("CreateChatCompletion error: %v\n", err)
 		klog.V(6).Infof("cumulative.Query LEAVE\n")
@@ -227,17 +238,17 @@ func (c *Persona) Query(ctx context.Context, role, statement string) ([]openai.C
 	}
 
 	// housekeeping
-	c.appendedResponse = false
-	c.conversation = convo
-	c.request = &request
-	c.response = &response
+	p.appendedResponse = false
+	p.conversation = convo
+	p.request = &request
+	p.response = &response
 
 	if len(response.Choices) == 1 {
-		c.appendedResponse = true
-		c.conversation = append(c.conversation, response.Choices[0].Message)
+		p.appendedResponse = true
+		p.conversation = append(p.conversation, response.Choices[0].Message)
 	}
 
-	for _, msg := range c.conversation {
+	for _, msg := range p.conversation {
 		klog.V(5).Infof("Output message (type: %s): %s\n", msg.Role, msg.Content)
 	}
 
@@ -247,7 +258,10 @@ func (c *Persona) Query(ctx context.Context, role, statement string) ([]openai.C
 	return response.Choices, nil
 }
 
-func (c *Persona) AddDirective(directives string) error {
+func (p *Persona) AddDirective(directives string) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	klog.V(5).Infof("AddDirectives: %s\n", directives)
 
 	if len(directives) == 0 {
@@ -255,7 +269,7 @@ func (c *Persona) AddDirective(directives string) error {
 		return interfaces.ErrInvalidInput
 	}
 
-	c.conversation = append(c.conversation, openai.ChatCompletionMessage{
+	p.conversation = append(p.conversation, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleSystem,
 		Content: directives,
 	})
@@ -263,41 +277,44 @@ func (c *Persona) AddDirective(directives string) error {
 	return nil
 }
 
-func (c *Persona) CommitResponse(index int) error {
+func (p *Persona) CommitResponse(index int) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	klog.V(6).Infof("cumulative.CommitResponse ENTER\n")
 	klog.V(5).Infof("index: %d\n", index)
 
-	if c.appendedResponse {
+	if p.appendedResponse {
 		klog.V(1).Infof("already appended response\n")
 		klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
 		return interfaces.ErrInvalidInput
 	}
-	if c.response == nil {
+	if p.response == nil {
 		klog.V(1).Infof("response is empty\n")
 		klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
 		return interfaces.ErrInvalidInput
 	}
-	if len(c.response.Choices) == 0 {
+	if len(p.response.Choices) == 0 {
 		klog.V(1).Infof("not choices generated\n")
 		klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
 		return interfaces.ErrInvalidInput
 	}
 
-	for _, msg := range c.response.Choices {
+	for _, msg := range p.response.Choices {
 		if msg.Index == index {
-			c.appendedResponse = true
-			c.conversation = append(c.conversation, msg.Message)
+			p.appendedResponse = true
+			p.conversation = append(p.conversation, msg.Message)
 			break
 		}
 	}
 
-	if c.appendedResponse {
+	if p.appendedResponse {
 		klog.V(1).Infof("response %d not found\n", index)
 		klog.V(6).Infof("cumulative.CommitResponse LEAVE\n")
 		return interfaces.ErrInvalidInput
 	}
 
-	for _, msg := range c.conversation {
+	for _, msg := range p.conversation {
 		klog.V(5).Infof("Message (type: %s): %s\n", msg.Role, msg.Content)
 	}
 
