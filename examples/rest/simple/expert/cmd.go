@@ -44,13 +44,13 @@ func main() {
 
 	// prompt 1
 	prompt := "Hello! How are you doing?"
-	choices, err := (*persona).Query(ctx, prompt)
+	repsonse, err := (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Me:\n%s\n", prompt)
-	fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+	fmt.Printf("\n\nChatGPT:\n%s\n", repsonse)
 
 	// divider
 	fmt.Printf("\n\n\n")
@@ -59,11 +59,11 @@ func main() {
 
 	// prompt 2
 	prompt = "Tell me about Long Beach, CA."
-	choices, err = (*persona).Query(ctx, prompt)
+	repsonse, err = (*persona).Query(ctx, prompt)
 	if err != nil {
 		fmt.Printf("persona.Query error: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Me:\n%s\n", prompt)
-	fmt.Printf("\n\nChatGPT:\n%s\n", choices[0].Message.Content)
+	fmt.Printf("\n\nChatGPT:\n%s\n", repsonse)
 }

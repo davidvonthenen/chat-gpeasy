@@ -29,7 +29,7 @@ func (c *Persona) Init(level interfaces.SkillType, model string) error {
 	return c.persona.Init(interfaces.SkillType(level), model)
 }
 
-func (c *Persona) Query(ctx context.Context, statement string) ([]openai.ChatCompletionChoice, error) {
+func (c *Persona) Query(ctx context.Context, statement string) ([]interfaces.CompletionChoice, error) {
 	return c.persona.Query(ctx, openai.ChatMessageRoleUser, statement)
 }
 

@@ -10,6 +10,7 @@ import (
 	klog "k8s.io/klog/v2"
 
 	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
+	utils "github.com/dvonthenen/chat-gpeasy/pkg/personas/utils"
 )
 
 func New(client *openai.Client) (*Persona, error) {
@@ -84,7 +85,7 @@ func (p *Persona) Init(level interfaces.SkillType, model string) error {
 	return nil
 }
 
-func (p *Persona) InitWithProvided(model string, previous []openai.ChatCompletionMessage) error {
+func (p *Persona) InitWithProvided(model string, previous []interfaces.CompletionMessage) error {
 	if p.appendedResponse {
 		klog.V(1).Infof("Init has already been called\n")
 		return interfaces.ErrInitAlready
@@ -96,30 +97,26 @@ func (p *Persona) InitWithProvided(model string, previous []openai.ChatCompletio
 	p.model = model
 	p.level = interfaces.SkillTypeCustom
 
-	p.conversation = make([]openai.ChatCompletionMessage, 0)
-	copy(p.conversation, previous)
-
+	p.conversation = *utils.ConvertCompletionMessages(previous)
 	p.appendedResponse = true
 
 	return nil
 }
 
-func (p *Persona) DynamicInit(model string, previous []openai.ChatCompletionMessage) error {
+func (p *Persona) DynamicInit(model string, previous []interfaces.CompletionMessage) error {
 	if len(model) == 0 {
 		model = openai.GPT3Dot5Turbo
 	}
 	p.model = model
 	p.level = interfaces.SkillTypeCustom
 
-	p.conversation = make([]openai.ChatCompletionMessage, 0)
-	copy(p.conversation, previous)
-
+	p.conversation = *utils.ConvertCompletionMessages(previous)
 	p.appendedResponse = true
 
 	return nil
 }
 
-func (p *Persona) GetConversation() ([]openai.ChatCompletionMessage, error) {
+func (p *Persona) GetConversation() ([]interfaces.CompletionMessage, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -127,7 +124,7 @@ func (p *Persona) GetConversation() ([]openai.ChatCompletionMessage, error) {
 		return nil, interfaces.ErrInvalidInput
 	}
 
-	return p.conversation, nil
+	return *utils.ConvertChatCompletionMessages(p.conversation), nil
 }
 
 func (p *Persona) EditConversation(index int, statement string) (*interfaces.StreamingCompletion, error) {
