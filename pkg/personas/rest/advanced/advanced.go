@@ -10,6 +10,7 @@ import (
 	klog "k8s.io/klog/v2"
 
 	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
+	utils "github.com/dvonthenen/chat-gpeasy/pkg/personas/utils"
 )
 
 func New(client *openai.Client) (*Persona, error) {
@@ -84,37 +85,33 @@ func (p *Persona) Init(level interfaces.SkillType, model string) error {
 	return nil
 }
 
-func (p *Persona) InitWithProvided(model string, previous []openai.ChatCompletionMessage) error {
+func (p *Persona) InitWithProvided(model string, previous []interfaces.CompletionMessage) error {
 	if len(model) == 0 {
 		model = openai.GPT3Dot5Turbo
 	}
 	p.model = model
 	p.level = interfaces.SkillTypeCustom
 
-	p.conversation = make([]openai.ChatCompletionMessage, 0)
-	copy(p.conversation, previous)
-
+	p.conversation = *utils.ConvertCompletionMessages(previous)
 	p.appendedResponse = true
 
 	return nil
 }
 
-func (p *Persona) DynamicInit(model string, previous []openai.ChatCompletionMessage) error {
+func (p *Persona) DynamicInit(model string, previous []interfaces.CompletionMessage) error {
 	if len(model) == 0 {
 		model = openai.GPT3Dot5Turbo
 	}
 	p.model = model
 	p.level = interfaces.SkillTypeCustom
 
-	p.conversation = make([]openai.ChatCompletionMessage, 0)
-	copy(p.conversation, previous)
-
+	p.conversation = *utils.ConvertCompletionMessages(previous)
 	p.appendedResponse = true
 
 	return nil
 }
 
-func (p *Persona) GetConversation() ([]openai.ChatCompletionMessage, error) {
+func (p *Persona) GetConversation() ([]interfaces.CompletionMessage, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -122,10 +119,10 @@ func (p *Persona) GetConversation() ([]openai.ChatCompletionMessage, error) {
 		return nil, interfaces.ErrInvalidInput
 	}
 
-	return p.conversation, nil
+	return *utils.ConvertChatCompletionMessages(p.conversation), nil
 }
 
-func (p *Persona) EditConversation(index int, statement string) ([]openai.ChatCompletionChoice, error) {
+func (p *Persona) EditConversation(index int, statement string) ([]interfaces.CompletionChoice, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -203,10 +200,10 @@ func (p *Persona) EditConversation(index int, statement string) ([]openai.ChatCo
 	klog.V(4).Infof("advanced.Query Succeeded\n")
 	klog.V(6).Infof("advanced.Query LEAVE\n")
 
-	return response.Choices, nil
+	return *utils.ConvertChatCompletionChoices(response.Choices), nil
 }
 
-func (p *Persona) Query(ctx context.Context, role, statement string) ([]openai.ChatCompletionChoice, error) {
+func (p *Persona) Query(ctx context.Context, role, statement string) ([]interfaces.CompletionChoice, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -274,7 +271,7 @@ func (p *Persona) Query(ctx context.Context, role, statement string) ([]openai.C
 	klog.V(4).Infof("advanced.Query Succeeded\n")
 	klog.V(6).Infof("advanced.Query LEAVE\n")
 
-	return response.Choices, nil
+	return *utils.ConvertChatCompletionChoices(response.Choices), nil
 }
 
 func (p *Persona) AddDirective(directives string) error {

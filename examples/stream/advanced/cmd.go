@@ -9,10 +9,9 @@ import (
 	"os"
 	"strings"
 
-	openai "github.com/sashabaranov/go-openai"
-
 	initialize "github.com/dvonthenen/chat-gpeasy/pkg/initialize"
 	personas "github.com/dvonthenen/chat-gpeasy/pkg/personas"
+	interfaces "github.com/dvonthenen/chat-gpeasy/pkg/personas/interfaces"
 )
 
 func main() {
@@ -40,9 +39,9 @@ func main() {
 	// 	os.Exit(1)
 	// }
 
-	conversation := make([]openai.ChatCompletionMessage, 0)
-	conversation = append(conversation, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleSystem,
+	conversation := make([]interfaces.CompletionMessage, 0)
+	conversation = append(conversation, interfaces.CompletionMessage{
+		Role:    interfaces.ChatMessageRoleSystem,
 		Content: "You are a helpful assistant.",
 	})
 	(*persona).DynamicInit("", conversation)

@@ -6,9 +6,19 @@ package interfaces
 import (
 	"context"
 	"io"
-
-	openai "github.com/sashabaranov/go-openai"
 )
+
+// shared
+type CompletionMessage struct {
+	Role    string
+	Content string
+	Name    string
+}
+type CompletionChoice struct {
+	Index        int
+	Message      *CompletionMessage
+	FinishReason string
+}
 
 // rest interfaces
 type SimpleChat interface {
@@ -18,18 +28,18 @@ type SimpleChat interface {
 
 type StandardChat interface {
 	Init(level SkillType, model string) error
-	Query(ctx context.Context, statement string) ([]openai.ChatCompletionChoice, error)
+	Query(ctx context.Context, statement string) ([]CompletionChoice, error)
 	AddDirective(directives string) error
 	CommitResponse(index int) error
 }
 
 type AdvancedChat interface {
 	Init(level SkillType, model string) error
-	InitWithProvided(model string, previous []openai.ChatCompletionMessage) error
-	DynamicInit(model string, previous []openai.ChatCompletionMessage) error
-	GetConversation() ([]openai.ChatCompletionMessage, error)
-	EditConversation(index int, statement string) ([]openai.ChatCompletionChoice, error)
-	Query(ctx context.Context, role, statement string) ([]openai.ChatCompletionChoice, error)
+	InitWithProvided(model string, previous []CompletionMessage) error
+	DynamicInit(model string, previous []CompletionMessage) error
+	GetConversation() ([]CompletionMessage, error)
+	EditConversation(index int, statement string) ([]CompletionChoice, error)
+	Query(ctx context.Context, role, statement string) ([]CompletionChoice, error)
 	AddDirective(directives string) error
 	CommitResponse(index int) error
 }
@@ -42,16 +52,16 @@ type StreamingCompletion interface {
 
 type StandardChatStream interface {
 	Init(level SkillType, model string) error
-	GetConversation() ([]openai.ChatCompletionMessage, error)
+	GetConversation() ([]CompletionMessage, error)
 	Query(ctx context.Context, statement string) (*StreamingCompletion, error)
 	AddDirective(directives string) error
 }
 
 type AdvancedChatStream interface {
 	Init(level SkillType, model string) error
-	InitWithProvided(model string, previous []openai.ChatCompletionMessage) error
-	DynamicInit(model string, previous []openai.ChatCompletionMessage) error
-	GetConversation() ([]openai.ChatCompletionMessage, error)
+	InitWithProvided(model string, previous []CompletionMessage) error
+	DynamicInit(model string, previous []CompletionMessage) error
+	GetConversation() ([]CompletionMessage, error)
 	EditConversation(index int, statement string) (*StreamingCompletion, error)
 	Query(ctx context.Context, statement string) (*StreamingCompletion, error)
 	AddDirective(directives string) error

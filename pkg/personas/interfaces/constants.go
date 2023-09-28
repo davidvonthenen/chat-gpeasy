@@ -3,7 +3,18 @@
 
 package interfaces
 
-import "errors"
+import (
+	"errors"
+
+	openai "github.com/sashabaranov/go-openai"
+)
+
+const (
+	ChatMessageRoleSystem    = openai.ChatMessageRoleSystem
+	ChatMessageRoleUser      = openai.ChatMessageRoleUser
+	ChatMessageRoleAssistant = openai.ChatMessageRoleAssistant
+	// ChatMessageRoleFunction  = openai.ChatMessageRoleFunction
+)
 
 type SkillType int64
 
