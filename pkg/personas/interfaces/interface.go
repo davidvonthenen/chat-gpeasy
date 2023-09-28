@@ -15,9 +15,9 @@ type CompletionMessage struct {
 	Name    string
 }
 type CompletionChoice struct {
-	Index        int
-	Message      *CompletionMessage
-	FinishReason string
+	Index   int
+	Message *CompletionMessage
+	// FinishReason string
 }
 
 // rest interfaces

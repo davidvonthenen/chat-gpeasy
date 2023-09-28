@@ -48,9 +48,9 @@ func ConvertChatCompletionMessages(messages []openai.ChatCompletionMessage) *[]i
 // CompletionChoice: Chat-GPeasy to OpenAI
 func ConvertCompletionChoice(choice interfaces.CompletionChoice) *openai.ChatCompletionChoice {
 	converted := openai.ChatCompletionChoice{
-		Index:        choice.Index,
-		Message:      *ConvertCompletionMessage(*choice.Message),
-		FinishReason: choice.FinishReason,
+		Index:   choice.Index,
+		Message: *ConvertCompletionMessage(*choice.Message),
+		// FinishReason: openai.FinishReason(choice.FinishReason), // TODO: need to revisit this
 	}
 	return &converted
 }
@@ -66,9 +66,9 @@ func ConvertCompletionChoices(choices []interfaces.CompletionChoice) *[]openai.C
 // CompletionChoice: OpenAI to Chat-GPeasy
 func ConvertChatCompletionChoice(choice openai.ChatCompletionChoice) *interfaces.CompletionChoice {
 	cc := interfaces.CompletionChoice{
-		Index:        choice.Index,
-		Message:      ConvertChatCompletionMessage(choice.Message),
-		FinishReason: choice.FinishReason,
+		Index:   choice.Index,
+		Message: ConvertChatCompletionMessage(choice.Message),
+		// FinishReason: string(choice.FinishReason), // TODO: need to revisit this
 	}
 	return &cc
 }
