@@ -41,6 +41,7 @@ type AdvancedChat interface {
 	EditConversation(index int, statement string) ([]CompletionChoice, error)
 	Query(ctx context.Context, role, statement string) ([]CompletionChoice, error)
 	AddDirective(directives string) error
+	AddUserContext(text string) error
 	CommitResponse(index int) error
 }
 
@@ -65,4 +66,5 @@ type AdvancedChatStream interface {
 	EditConversation(index int, statement string) (*StreamingCompletion, error)
 	Query(ctx context.Context, statement string) (*StreamingCompletion, error)
 	AddDirective(directives string) error
+	AddUserContext(text string) error
 }
