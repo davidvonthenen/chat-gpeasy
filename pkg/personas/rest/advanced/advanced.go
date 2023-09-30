@@ -293,6 +293,25 @@ func (p *Persona) AddDirective(directives string) error {
 	return nil
 }
 
+func (p *Persona) AddUserContext(text string) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	klog.V(5).Infof("AddUserContext: %s\n", text)
+
+	if len(text) == 0 {
+		klog.V(1).Infof("context is empty\n")
+		return interfaces.ErrInvalidInput
+	}
+
+	p.conversation = append(p.conversation, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: text,
+	})
+
+	return nil
+}
+
 func (p *Persona) CommitResponse(index int) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()

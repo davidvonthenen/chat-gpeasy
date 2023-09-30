@@ -84,6 +84,18 @@ func main() {
 	fmt.Printf("-------------------------------------------")
 	fmt.Printf("\n\n\n")
 
+	fmt.Printf("Adding some color to my persons... as in I like to relax at the gym.\n")
+	err = (*persona).AddUserContext("My favorite way to relax is to workout at the gym.")
+	if err != nil {
+		fmt.Printf("persona.AddUserContext(gym) error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// divider
+	fmt.Printf("\n\n\n")
+	fmt.Printf("-------------------------------------------")
+	fmt.Printf("\n\n\n")
+
 	// edit convo
 	fmt.Printf("Oooops... I goofed. I need to edit this...\n\n\n")
 	conversation, err = (*persona).GetConversation()
@@ -137,5 +149,22 @@ func main() {
 	fmt.Printf("\n\nChatGPT:\n")
 	(*stream4).Stream(os.Stdout)
 	(*stream4).Close()
+	fmt.Printf("\n")
+
+	// divider
+	fmt.Printf("\n\n\n")
+	fmt.Printf("-------------------------------------------")
+	fmt.Printf("\n\n\n")
+
+	prompt = "What was my favorite was to relax again?"
+	stream5, err := (*persona).Query(ctx, prompt)
+	if err != nil {
+		fmt.Printf("persona.Query error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Me:\n%s\n", prompt)
+	fmt.Printf("\n\nChatGPT:\n")
+	(*stream5).Stream(os.Stdout)
+	(*stream5).Close()
 	fmt.Printf("\n")
 }
